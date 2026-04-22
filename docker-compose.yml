@@ -1,0 +1,13 @@
+services:
+  playground:
+    build: .
+    image: evalmedia-playground:local
+    container_name: evalmedia-playground
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      FAL_KEY: ${FAL_KEY}
+      DATABASE_PATH: /app/data/evalmedia.db
+    volumes:
+      - ./data:/app/data

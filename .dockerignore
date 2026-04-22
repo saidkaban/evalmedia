@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env
+.env.local
+data
+*.db
+*.db-journal
+*.sqlite
+README.md
+DECISIONS.md
+CLAUDE.md
