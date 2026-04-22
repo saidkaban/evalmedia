@@ -8,16 +8,27 @@ import { cn } from "@/lib/utils";
 
 type Theme = "light" | "dark";
 
-function readInitialTheme(): Theme {
-  if (typeof document === "undefined") return "dark";
-  return document.documentElement.classList.contains("dark") ? "dark" : "light";
-}
-
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [theme, setTheme] = useState<Theme>(readInitialTheme);
+  // theme starts as null on SSR and the first client render so the
+  // icon stays a neutral placeholder until we can safely read the
+  // real value from the document class the inline script set.
+  const [theme, setTheme] = useState<Theme | null>(null);
 
   useEffect(() => {
+    // Read the class the inline theme script wrote to <html> before
+    // hydration. This is the "sync with external system" case React's
+    // hooks rule carves out: the DOM was mutated outside React and we
+    // need to reflect that into state exactly once.
+    const current: Theme = document.documentElement.classList.contains("dark")
+      ? "dark"
+      : "light";
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setTheme(current);
+  }, []);
+
+  useEffect(() => {
+    if (theme === null) return;
     document.documentElement.classList.toggle("dark", theme === "dark");
     try {
       localStorage.setItem("evalmedia-theme", theme);
@@ -56,10 +67,18 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               aria-label="Toggle theme"
-              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+              onClick={() =>
+                setTheme((t) => (t === "dark" ? "light" : "dark"))
+              }
               className="inline-flex h-8 w-8 items-center justify-center rounded-md border border-border text-muted hover:bg-surface-hover hover:text-foreground"
             >
-              {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+              {theme === null ? (
+                <span className="h-[14px] w-[14px]" />
+              ) : theme === "dark" ? (
+                <Sun size={14} />
+              ) : (
+                <Moon size={14} />
+              )}
             </button>
           </div>
         </div>
