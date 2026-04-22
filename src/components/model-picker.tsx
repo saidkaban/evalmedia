@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
+import { X } from "lucide-react";
 import { usePlaygroundStore, modelKey } from "@/store/playground";
 import { Checkbox } from "@/components/ui/checkbox";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,14 @@ export function ModelPicker() {
     return Array.from(map.entries());
   }, [models]);
 
+  const selectedModels = useMemo(
+    () =>
+      selectedKeys
+        .map((k) => models.find((m) => modelKey(m) === k))
+        .filter((m): m is (typeof models)[number] => Boolean(m)),
+    [selectedKeys, models],
+  );
+
   if (loading) {
     return (
       <div className="space-y-2">
@@ -33,6 +42,42 @@ export function ModelPicker() {
 
   return (
     <div className="space-y-4">
+      {selectedModels.length > 0 && (
+        <div className="sticky -top-3 z-10 -mx-3 -mt-3 border-b border-border bg-background/95 px-3 pb-3 pt-3 backdrop-blur supports-[backdrop-filter]:bg-background/80">
+          <div className="mb-1.5 flex items-center justify-between">
+            <span className="text-xs uppercase tracking-wide text-muted">
+              Selected ({selectedModels.length})
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                for (const m of selectedModels) toggleModel(modelKey(m));
+              }}
+              className="text-xs text-muted hover:text-foreground"
+            >
+              Clear
+            </button>
+          </div>
+          <ul className="flex flex-wrap gap-1.5">
+            {selectedModels.map((m) => {
+              const key = modelKey(m);
+              return (
+                <li key={key}>
+                  <button
+                    type="button"
+                    onClick={() => toggleModel(key)}
+                    title={`Remove ${m.name}`}
+                    className="inline-flex max-w-full items-center gap-1 rounded-full border border-border bg-surface py-0.5 pl-2 pr-1 text-xs hover:bg-surface-hover"
+                  >
+                    <span className="truncate">{m.name}</span>
+                    <X size={12} className="flex-shrink-0 text-muted" />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
       {byProvider.map(([providerId, providerModels]) => (
         <div key={providerId}>
           <div className="mb-2 text-xs uppercase tracking-wide text-muted">
