@@ -2,7 +2,7 @@
 
 **Open-source framework for evaluating AI-generated media quality.**
 
-Think "DeepEval but for generative media." Structured, actionable quality assessments for AI-generated images — designed for AI agents, not dashboards.
+Don't ship AI slop.
 
 [Website](https://evalmedia.com) | [PyPI](https://pypi.org/project/evalmedia/) | [GitHub](https://github.com/saidkaban/evalmedia)
 
